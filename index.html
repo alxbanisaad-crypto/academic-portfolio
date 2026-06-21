@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Dr. Rand Abdulhussain — Pharmaceutical Scientist"/>
+<title>Dr. Rand Abdulhussain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f6f5f1; --ink:#1b1b18; --muted:#6c6a61;
+    --accent:#285450; --accent-2:#3a716b; --rule:#e1ddd2; --rule-2:#cfcabb; --maxw:680px;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--paper); color:var(--ink); font-family:"Inter",system-ui,sans-serif; line-height:1.65; font-size:17px; -webkit-font-smoothing:antialiased; }
+  a{ color:var(--accent); text-decoration:none; }
+  a:hover{ color:var(--accent-2); text-decoration:underline; text-underline-offset:3px; }
+
+  .topbar{ position:sticky; top:0; z-index:10; background:color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter:saturate(120%) blur(8px); border-bottom:1px solid var(--rule); }
+  .topbar .inner{ max-width:var(--maxw); margin:0 auto; padding:13px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .brand{ font-family:"Newsreader",serif; font-weight:500; font-size:17px; }
+  .nav{ display:flex; gap:16px; flex-wrap:wrap; }
+  .nav a{ color:var(--muted); font-size:13px; }
+  .nav a:hover{ color:var(--ink); text-decoration:none; }
+
+  .site-main{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+  .sec{ padding:46px 0; border-top:1px solid var(--rule); }
+  .eyebrow{ font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; font-weight:600; }
+  .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:none; }
+
+  .hero{ max-width:var(--maxw); margin:0 auto; padding:74px 24px 50px; }
+  .hero .kicker{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:20px; }
+  .hero h1{ font-family:"Newsreader",serif; font-weight:400; font-size:clamp(40px,8.5vw,68px); line-height:1.03; letter-spacing:-.015em; margin-bottom:10px; }
+  .hero .creds{ font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+  .hero .role{ font-family:"Newsreader",serif; font-style:italic; font-size:clamp(19px,4.5vw,23px); margin-bottom:4px; }
+  .hero .affil{ color:var(--muted); font-size:16px; margin-bottom:26px; }
+  .hero .tagline{ font-size:clamp(17px,4vw,20px); max-width:36ch; margin-bottom:30px; }
+  .contacts{ display:flex; flex-wrap:wrap; gap:10px; }
+  .contacts a{ font-size:13px; padding:7px 13px; border:1px solid var(--rule-2); border-radius:999px; color:var(--ink); transition:border-color .2s, background .2s; }
+  .contacts a:hover{ text-decoration:none; border-color:var(--accent); background:rgba(40,84,80,.06); color:var(--accent); }
+
+  .about p{ margin-bottom:14px; }
+  .about p:last-child{ margin-bottom:0; }
+  .themes{ display:grid; gap:24px; }
+  .theme h3{ font-family:"Newsreader",serif; font-weight:500; font-size:21px; margin-bottom:4px; }
+  .theme p{ color:var(--muted); font-size:16px; }
+
+  /* collapsible entries with photo strips */
+  .entry{ border-bottom:1px solid var(--rule); }
+  .entry-head{ width:100%; background:none; border:none; font:inherit; color:inherit; cursor:default; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:18px 0; text-align:left; }
+  button.entry-head{ cursor:pointer; }
+  button.entry-head:hover .entry-title{ color:var(--accent); }
+  .entry-title{ font-family:"Newsreader",serif; font-weight:500; font-size:20px; transition:color .15s; }
+  .entry-right{ display:flex; align-items:center; gap:12px; color:var(--accent); font-size:13px; white-space:nowrap; }
+  .chev{ display:inline-block; transition:transform .25s ease; font-size:11px; }
+  .entry.open .chev{ transform:rotate(90deg); }
+  .entry-panel{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s ease; }
+  .entry.open .entry-panel{ grid-template-rows:1fr; }
+  .entry-panel-inner{ overflow:hidden; min-height:0; }
+  .entry-detail{ color:var(--muted); font-size:16px; padding-bottom:6px; }
+  .strip{ display:flex; gap:10px; overflow-x:auto; padding:8px 2px 16px; scroll-snap-type:x mandatory; }
+  .strip img{ height:190px; width:auto; max-width:80vw; border-radius:10px; border:1px solid var(--rule); object-fit:cover; flex:0 0 auto; scroll-snap-align:start; cursor:zoom-in; background:#eceae3; }
+  .entry-link{ display:inline-block; margin-bottom:16px; font-size:13px; }
+
+  .lightbox{ position:fixed; inset:0; z-index:100; background:rgba(20,16,24,.92); display:flex; align-items:center; justify-content:center; padding:24px; }
+  .lightbox[hidden]{ display:none; }
+  .lb-img{ max-width:92vw; max-height:88vh; border-radius:8px; }
+  .lb-close{ position:absolute; top:14px; right:20px; background:none; border:none; color:#fff; font-size:34px; line-height:1; cursor:pointer; }
+
+  .pub{ display:grid; grid-template-columns:54px 1fr; gap:14px; padding:16px 0; border-bottom:1px solid var(--rule); }
+  .pub:last-child{ border-bottom:none; }
+  .pub .yr{ font-family:"Newsreader",serif; font-size:18px; color:var(--accent); padding-top:1px; }
+  .pub .ttl{ font-weight:500; }
+  .pub .auth, .pub .ven{ font-size:15px; color:var(--muted); }
+  .pub .ven{ font-style:italic; }
+  .pub strong{ color:var(--ink); font-weight:600; }
+  .pub .pl{ margin-top:5px; display:flex; gap:14px; flex-wrap:wrap; }
+  .pub .pl a{ font-size:13px; }
+
+  .cv-row{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  .cv-note{ color:var(--muted); font-size:16px; flex:1; min-width:200px; }
+  .btn{ font-family:inherit; font-size:14px; font-weight:600; color:#fff; background:var(--accent); border:none; border-radius:8px; padding:11px 18px; cursor:pointer; display:inline-block; }
+  .btn:hover{ background:var(--accent-2); text-decoration:none; color:#fff; }
+
+  .site-footer{ max-width:var(--maxw); margin:0 auto; padding:40px 24px 70px; border-top:1px solid var(--rule); color:var(--muted); font-size:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  .site-footer .fl{ display:flex; gap:16px; flex-wrap:wrap; }
+
+  @media (max-width:520px){ .pub{ grid-template-columns:1fr; gap:4px; } .pub .yr{ font-size:14px; } }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } .reveal{ opacity:1; transform:none; } }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:3px; }
+
+  body.building #site .reveal{ opacity:1; transform:none; }
+  body.building #site .topbar{ position:static; }
+
+  /* builder chrome */
+  .e-bar{ position:sticky; top:0; z-index:50; background:#1b1b18; color:#f6f5f1; display:flex; align-items:center; gap:12px; padding:10px 16px; flex-wrap:wrap; }
+  .e-title{ font-family:"Newsreader",serif; font-size:16px; margin-right:auto; }
+  .e-tabs{ display:flex; gap:3px; background:#2a2a26; border-radius:8px; padding:3px; }
+  .e-tab{ background:transparent; color:#cfcabb; border:none; padding:6px 14px; border-radius:6px; font-family:inherit; font-size:13px; cursor:pointer; }
+  .e-tab.active{ background:#f6f5f1; color:#1b1b18; }
+  .e-btn{ font-family:inherit; font-size:13px; font-weight:600; border-radius:7px; padding:7px 14px; cursor:pointer; border:1px solid #4a4a44; background:transparent; color:#f6f5f1; }
+  .e-primary{ background:#3a716b; border-color:#3a716b; color:#fff; }
+
+  #editor{ max-width:680px; margin:0 auto; padding:24px 24px 90px; }
+  .e-intro{ color:var(--muted); font-size:14px; margin-bottom:18px; }
+  .e-h{ font-family:"Newsreader",serif; font-size:20px; margin:28px 0 6px; padding-bottom:6px; border-bottom:1px solid var(--rule); }
+  .e-sub{ font-size:12.5px; color:var(--muted); margin:2px 0 6px; }
+  label.e-l{ display:block; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); margin:13px 0 5px; font-weight:600; }
+  .e-in, .e-ta{ width:100%; background:#fff; border:1px solid var(--rule-2); border-radius:8px; padding:9px 11px; font-family:inherit; font-size:15px; color:var(--ink); }
+  .e-ta{ min-height:74px; resize:vertical; }
+  .e-in:focus, .e-ta:focus{ outline:none; border-color:var(--accent); }
+  .e-row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .e-card{ border:1px solid var(--rule); border-radius:10px; padding:14px 14px 6px; margin:12px 0; position:relative; background:#fbfaf7; }
+  .e-rm{ position:absolute; top:8px; right:10px; background:none; border:none; color:var(--muted); font-size:19px; line-height:1; cursor:pointer; }
+  .e-rm:hover{ color:#a23a2a; }
+  .e-add{ width:100%; padding:10px; border:1px dashed var(--rule-2); background:transparent; color:var(--accent); border-radius:8px; cursor:pointer; font-family:inherit; font-size:14px; margin:6px 0 4px; }
+  .e-add:hover{ border-color:var(--accent); background:rgba(40,84,80,.05); }
+  .e-hint{ font-size:12.5px; color:var(--muted); margin-top:5px; }
+  .e-link-row{ display:grid; grid-template-columns:120px 1fr; gap:8px; margin-bottom:8px; }
+  #publish-out{ margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); }
+  .e-out-ta{ width:100%; min-height:90px; font-family:ui-monospace,Menlo,monospace; font-size:12px; background:#fff; border:1px solid var(--rule-2); border-radius:8px; padding:10px; color:var(--ink); }
+  .e-reset{ background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; cursor:pointer; margin-top:14px; }
+  @media (max-width:520px){ .e-row2{ grid-template-columns:1fr; } .e-link-row{ grid-template-columns:90px 1fr; } }
+</style>
+</head>
+<body>
+<div id="site"></div>
+<template id="site-markup">
+  <div class="topbar"><div class="inner">
+    <span class="brand" id="brand"></span>
+    <nav class="nav">
+      <a href="#about">About</a><a href="#research">Research</a><a href="#awards">Awards</a>
+      <a href="#pubs">Publications</a><a href="#conf">Talks</a><a href="#eng">Engagement</a>
+      <a href="#cv">CV</a><a href="#contact">Contact</a>
+    </nav>
+  </div></div>
+
+  <header class="hero">
+    <p class="kicker" id="kicker"></p>
+    <h1 id="name"></h1>
+    <p class="creds" id="creds"></p>
+    <p class="role" id="role"></p>
+    <p class="affil" id="affil"></p>
+    <p class="tagline" id="tagline"></p>
+    <div class="contacts" id="contacts"></div>
+  </header>
+
+  <main class="site-main">
+    <section class="sec about reveal" id="about"><p class="eyebrow">About</p><div id="about-body"></div></section>
+    <section class="sec reveal" id="research"><p class="eyebrow">Research</p><div class="themes" id="themes"></div></section>
+    <section class="sec reveal" id="awards"><p class="eyebrow">Awards &amp; honours</p><div id="awards-list"></div></section>
+    <section class="sec reveal" id="pubs"><p class="eyebrow">Publications</p><div id="pub-list"></div></section>
+    <section class="sec reveal" id="conf"><p class="eyebrow">Conferences &amp; talks</p><div id="conf-list"></div></section>
+    <section class="sec reveal" id="eng"><p class="eyebrow">Engagement &amp; leadership</p><div id="eng-list"></div></section>
+    <section class="sec reveal" id="cv"><p class="eyebrow">Curriculum vitae</p>
+      <div class="cv-row"><span class="cv-note" id="cv-note"></span><a class="btn" id="cv-link" href="#">Download CV (PDF)</a></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <span id="foot-name"></span><span class="fl" id="foot-links"></span>
+  </footer>
+</template>
+<script>const DATA={"name":"Dr. Rand Abdulhussain","creds":"PhD · MSc · BSc · AFHEA","shortName":"Rand Abdulhussain","role":"Pharmaceutical Scientist","affiliation":"Department of Pharmacy, University of Huddersfield","conferred":"PhD in Pharmaceutics · University of Huddersfield · 2026","tagline":"I research how medicines are formulated, manufactured and released — from electrospun nanofibres to 3D-printed tablets.","about":["I'm a pharmaceutical scientist completing my PhD in the Department of Pharmacy at the University of Huddersfield. My research looks at how medicines are formulated, manufactured and released in the body, spanning electrospun nanofibres, hot-melt extrusion and 3D-printed dosage forms.","Alongside my research I'm an Associate Fellow of the Higher Education Academy (AFHEA) and a STEM Ambassador, and my work has been recognised in national and university competitions.","[Add a personal line here — what drew you to pharmaceutics, or what's next.]"],"research":[{"title":"Formulation & drug delivery","text":"Designing dosage forms — from electrospun nanofibres to bioadhesive buccal systems and sustained-release tablets."},{"title":"Advanced manufacturing","text":"Hot-melt extrusion, FDM 3D printing, and applying AI and quality-by-design to more sustainable pharmaceutical manufacturing."},{"title":"Dissolution science & natural excipients","text":"Using dissolution imaging to understand drug release, and evaluating natural polysaccharides such as baobab and xanthan gum as excipients."}],"awards":[{"title":"Best PhD Student — ENA Awards 2026","year":"2026","detail":"Winner. [Add the full award name / organising body so visitors know what ENA stands for.]","images":[]},{"title":"Three Minute Thesis (3MT) — University winner","year":"2026","detail":"Won the University of Huddersfield 3MT competition and progressed to compete nationally.","images":[]},{"title":"Rapid Presentation — winner","year":"2024","detail":"University of Manchester.","images":[]},{"title":"Best Presentation award","year":"","detail":"[Add the conference name and year.]","images":[]}],"boldName":"Abdulhussain, R.","publications":[{"year":"2026","authors":"Adebisi, A. O., Abdulhussain, R., Ghazali, Y., & Asare-Addo, K.","title":"Bioadhesive Buccal Delivery Systems.","venue":"Book chapter","links":[{"label":"ResearchGate","url":"https://www.researchgate.net/publication/406684176_Bioadhesive_Buccal_Delivery_Systems"}]},{"year":"2026","authors":"Abdulhussain, R., Muhamad, H., Fiza, T., et al., & Asare-Addo, K.","title":"The integration of artificial intelligence through quality by digital design for sustainable pharmaceutical manufacturing.","venue":"International Journal of Pharmaceutics","links":[{"label":"ResearchGate","url":"https://www.researchgate.net/publication/400792535_The_integration_of_artificial_intelligence_through_quality_by_digital_design_for_sustainable_pharmaceutical_manufacturing"}]},{"year":"2025","authors":"Ajiboye, M. A., Rawat, Y., Mawla, N., Abdulhussain, R., et al., & Asare-Addo, K.","title":"An evaluation of the pharmaceutical properties of the Nigerian baobab polysaccharide for sustained release oral tablets.","venue":"RSC Pharmaceutics","links":[{"label":"ResearchGate","url":"https://www.researchgate.net/publication/396384730_An_evaluation_of_the_pharmaceutical_properties_of_the_Nigerian_baobab_polysaccharide_for_sustained_release_oral_tablets"}]},{"year":"2025","authors":"Muhamad, H., Bashir, A. B., Charlton-Harrison, J., Abdulhussain, R., et al., & Asare-Addo, K.","title":"Hot-melt extruded-FDM 3D-printed polyethylene oxide tablets: Dissolution imaging analysis of swelling and drug release.","venue":"European Journal of Pharmaceutics and Biopharmaceutics","links":[{"label":"ResearchGate","url":"https://www.researchgate.net/publication/388283067_Hot-melt_extruded-FDM_3D-printed_polyethylene_oxide_tablets_Dissolution_imaging_analysis_of_swelling_and_drug_release"}]},{"year":"2024","authors":"Muhamad, H., Ward, A., Abdulhussain, R., et al., & Asare-Addo, K.","title":"Analysis of Swelling and Dissolution Dynamics of Xanthan Gum-Excipient Blends Using Dissolution Imaging.","venue":"Journal of Drug Delivery Science and Technology","links":[{"label":"ResearchGate","url":"https://www.researchgate.net/publication/387063534_Analysis_of_Swelling_and_Dissolution_Dynamics_of_Xanthan_Gum-Excipient_Blends_Using_Dissolution_Imaging"}]},{"year":"2024","authors":"Alhatemi, A. Q. M., Al-Yacopy, A. A., Manea, H., & Abdulhussain, R.","title":"Neonatal lupus with complete heart block and long term follow up.","venue":"Oxford Medical Case Reports","links":[{"label":"ResearchGate","url":"https://www.researchgate.net/publication/381293780_Neonatal_lupus_with_complete_heart_block_and_long_term_follow_up"}]},{"year":"2024","authors":"Alhatemi, A. Q. M., Manea, H., Abdulhussain, R., et al.","title":"Single-dose ibuprofen induced Stevens–Johnson Syndrome.","venue":"Clinical Case Reports","links":[{"label":"ResearchGate","url":"https://www.researchgate.net/publication/379824770_Single-dose_ibuprofen_induced_Stevens-Johnson_Syndrome"}]},{"year":"2023","authors":"Abdulhussain, R., Adebisi, A. O., Conway, B. R., & Asare-Addo, K.","title":"Electrospun nanofibers: Exploring process parameters, polymer selection, and recent applications in pharmaceuticals and drug delivery.","venue":"Journal of Drug Delivery Science and Technology","links":[{"label":"ResearchGate","url":"https://www.researchgate.net/publication/375570992_Electrospun_nanofibers_Exploring_process_parameters_polymer_selection_and_recent_applications_in_pharmaceuticals_and_drug_delivery"}]}],"conferences":[{"title":"14th Academy of Pharmaceutical Sciences (APS) Conference","year":"[Year · location]","detail":"[What she presented — poster or talk, and the topic.]","images":[]},{"title":"[Add another conference]","year":"","detail":"[Poster or oral presentation details.]","images":[]}],"engagement":[{"title":"STEM Ambassador","year":"","detail":"Visits Year 4 pupils in local schools to spark their interest in science, technology, engineering and maths.","images":[]},{"title":"Union Chair — University of Huddersfield","year":"","detail":"[Add the years and a line about the role and what she led.]","images":[]}],"cv":{"note":"Eight publications · 300+ citations · award-winning presenter · STEM Ambassador.","url":"#"},"links":{"email":"","researchgate":"https://www.researchgate.net/profile/Rand-Abdulhussain","linkedin":"https://www.linkedin.com/in/rand-abdulhussain-b367a11a1","scholar":"","orcid":"","github":""}};</script>
+<script>
+function esc(s){ return (s||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function ensureLightbox(){
+  if(document.getElementById("lightbox")) return;
+  var lb=document.createElement("div"); lb.id="lightbox"; lb.className="lightbox"; lb.setAttribute("hidden","");
+  lb.innerHTML='<button class="lb-close" type="button" aria-label="Close">×</button><img class="lb-img" alt="">';
+  document.body.appendChild(lb);
+  function close(){ lb.setAttribute("hidden",""); }
+  lb.addEventListener("click",function(e){ if(e.target===lb || e.target.classList.contains("lb-close")) close(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") close(); });
+}
+function openLightbox(src,alt){ ensureLightbox(); var lb=document.getElementById("lightbox"); var im=lb.querySelector(".lb-img"); im.src=src; im.alt=alt||""; lb.removeAttribute("hidden"); }
+
+function render(DATA){
+  var root=document.getElementById("site"); if(!root) return;
+  var tpl=document.getElementById("site-markup");
+  if(tpl && !root.firstChild){ root.appendChild(tpl.content.cloneNode(true)); }
+  function set(id,v){ var el=document.getElementById(id); if(el){ el.textContent=v||""; el.style.display=v?"":"none"; } }
+  document.title=DATA.name||"Academic homepage";
+  var brand=document.getElementById("brand"); if(brand) brand.textContent=DATA.shortName||DATA.name||"";
+  var kick=document.getElementById("kicker"); if(kick){ kick.textContent=DATA.conferred||""; kick.style.display=DATA.conferred?"":"none"; }
+  set("creds",DATA.creds);
+  var nm=document.getElementById("name"); if(nm) nm.textContent=DATA.name||"";
+  set("role",DATA.role); set("affil",DATA.affiliation); set("tagline",DATA.tagline);
+
+  var L=DATA.links||{};
+  var pills=[ L.email?{label:"Email",href:"mailto:"+L.email}:null,
+    L.researchgate?{label:"ResearchGate",href:L.researchgate}:null,
+    L.linkedin?{label:"LinkedIn",href:L.linkedin}:null,
+    L.scholar?{label:"Google Scholar",href:L.scholar}:null,
+    L.orcid?{label:"ORCID",href:L.orcid}:null,
+    L.github?{label:"GitHub",href:L.github}:null
+  ].filter(Boolean);
+  function fillPills(cid){ var w=document.getElementById(cid); if(!w)return; w.innerHTML=""; pills.forEach(function(p){ var a=document.createElement("a"); a.href=p.href; a.textContent=p.label; if(p.href.indexOf("http")===0){a.target="_blank";a.rel="noopener";} w.appendChild(a); }); }
+  fillPills("contacts"); fillPills("foot-links");
+
+  var ab=document.getElementById("about-body"); if(ab){ ab.innerHTML=""; (DATA.about||[]).forEach(function(t){ var p=document.createElement("p"); p.textContent=t; ab.appendChild(p); }); }
+
+  var th=document.getElementById("themes"); if(th){ th.innerHTML=""; (DATA.research||[]).forEach(function(r){ var d=document.createElement("div"); d.className="theme"; var h=document.createElement("h3"); h.textContent=r.title; var p=document.createElement("p"); p.textContent=r.text; d.appendChild(h); d.appendChild(p); th.appendChild(d); }); }
+
+  function renderEntries(cid, items, sectionId){
+    var w=document.getElementById(cid); if(!w) return; w.innerHTML="";
+    items=items||[];
+    items.forEach(function(it){
+      var imgs=(it.images||[]).filter(Boolean);
+      var hasContent=(it.detail&&it.detail.length) || imgs.length || (it.link&&it.link.url);
+      var entry=document.createElement("div"); entry.className="entry";
+      var head=document.createElement(hasContent?"button":"div");
+      head.className="entry-head"; if(hasContent){ head.type="button"; head.setAttribute("aria-expanded","false"); }
+      var t=document.createElement("span"); t.className="entry-title"; t.textContent=it.title||"";
+      var right=document.createElement("span"); right.className="entry-right";
+      if(it.year){ var y=document.createElement("span"); y.className="entry-year"; y.textContent=it.year; right.appendChild(y); }
+      if(hasContent){ var ch=document.createElement("span"); ch.className="chev"; ch.textContent="▸"; right.appendChild(ch); }
+      head.appendChild(t); head.appendChild(right); entry.appendChild(head);
+      if(hasContent){
+        var panel=document.createElement("div"); panel.className="entry-panel";
+        var inner=document.createElement("div"); inner.className="entry-panel-inner";
+        if(it.detail){ var p=document.createElement("p"); p.className="entry-detail"; p.textContent=it.detail; inner.appendChild(p); }
+        if(imgs.length){ var strip=document.createElement("div"); strip.className="strip";
+          imgs.forEach(function(src){ var im=document.createElement("img"); im.src=src; im.alt=it.title||""; im.loading="lazy"; im.onerror=function(){ this.style.display="none"; }; im.addEventListener("click",function(){ openLightbox(src,it.title); }); strip.appendChild(im); });
+          inner.appendChild(strip);
+        }
+        if(it.link&&it.link.url){ var a=document.createElement("a"); a.className="entry-link"; a.href=it.link.url; a.textContent=it.link.label||"Link"; if(it.link.url.indexOf("http")===0){a.target="_blank";a.rel="noopener";} inner.appendChild(a); }
+        panel.appendChild(inner); entry.appendChild(panel);
+        head.addEventListener("click",function(){ var open=entry.classList.toggle("open"); head.setAttribute("aria-expanded", open?"true":"false"); });
+      }
+      w.appendChild(entry);
+    });
+    var sec=document.getElementById(sectionId); if(sec) sec.style.display=items.length?"":"none";
+  }
+  renderEntries("awards-list", DATA.awards, "awards");
+  renderEntries("conf-list", DATA.conferences, "conf");
+  renderEntries("eng-list", DATA.engagement, "eng");
+
+  var pl=document.getElementById("pub-list"); if(pl){ pl.innerHTML=""; var bold=DATA.boldName?esc(DATA.boldName):null;
+    (DATA.publications||[]).forEach(function(pub){
+      var row=document.createElement("div"); row.className="pub";
+      var yr=document.createElement("div"); yr.className="yr"; yr.textContent=pub.year;
+      var body=document.createElement("div");
+      var ah=esc(pub.authors); if(bold) ah=ah.split(bold).join("<strong>"+bold+"</strong>");
+      body.innerHTML='<div class="auth">'+ah+'</div><div class="ttl">'+esc(pub.title)+'</div><div class="ven">'+esc(pub.venue)+'</div>';
+      if(pub.links && pub.links.length){ var lw=document.createElement("div"); lw.className="pl";
+        pub.links.forEach(function(lk){ if(!lk||!lk.url)return; var a=document.createElement("a"); a.href=lk.url; a.textContent=lk.label||"Link"; if(lk.url.indexOf("http")===0){a.target="_blank";a.rel="noopener";} lw.appendChild(a); });
+        body.appendChild(lw);
+      }
+      row.appendChild(yr); row.appendChild(body); pl.appendChild(row);
+    });
+    var psec=document.getElementById("pubs"); if(psec) psec.style.display=(DATA.publications&&DATA.publications.length)?"":"none";
+  }
+
+  var cvNote=document.getElementById("cv-note"); if(cvNote) cvNote.textContent=(DATA.cv&&DATA.cv.note)||"";
+  var cv=document.getElementById("cv-link"); if(cv){ if(DATA.cv&&DATA.cv.url&&DATA.cv.url!=="#"){ cv.href=DATA.cv.url; cv.style.display=""; } else { cv.style.display="none"; } }
+  var fn=document.getElementById("foot-name"); if(fn) fn.textContent="© "+new Date().getFullYear()+" "+(DATA.shortName||DATA.name||"");
+
+  if(!window.__revealInit){ window.__revealInit=true;
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} }); },{threshold:0.12});
+    document.querySelectorAll("#site .reveal").forEach(function(el){ io.observe(el); });
+  }
+}
+(function(){
+  function boot(){ if(typeof DATA!=="undefined" && DATA) render(DATA); }
+  if(document.readyState!=="loading") boot(); else document.addEventListener("DOMContentLoaded",boot);
+})();
+</script>
+</body>
+</html>
