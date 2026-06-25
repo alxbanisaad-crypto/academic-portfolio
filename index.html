@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Academic Homepage — Builder</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style id="appstyle">
+  :root{
+    --paper:#f6f5f1; --ink:#1b1b18; --muted:#6c6a61;
+    --accent:#285450; --accent-2:#3a716b; --rule:#e1ddd2; --rule-2:#cfcabb; --maxw:1080px; --readw:680px;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--paper); color:var(--ink); font-family:"Inter",system-ui,sans-serif; line-height:1.65; font-size:17px; -webkit-font-smoothing:antialiased; }
+  a{ color:var(--accent); text-decoration:none; }
+  a:hover{ color:var(--accent-2); text-decoration:underline; text-underline-offset:3px; }
+
+  .topbar{ position:sticky; top:0; z-index:10; background:color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter:saturate(120%) blur(8px); border-bottom:1px solid var(--rule); }
+  .topbar .inner{ max-width:var(--maxw); margin:0 auto; padding:13px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .brand{ font-family:"Newsreader",serif; font-weight:500; font-size:17px; }
+  .nav{ display:flex; gap:16px; flex-wrap:wrap; }
+  .nav a{ color:var(--muted); font-size:13px; }
+  .nav a:hover{ color:var(--ink); text-decoration:none; }
+
+  .site-main{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+  .sec{ padding:46px 0; border-top:1px solid var(--rule); }
+  .eyebrow{ font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; font-weight:600; }
+  .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:none; }
+
+  .hero{ max-width:var(--maxw); margin:0 auto; padding:74px 24px 50px; }
+  .hero .kicker{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:20px; }
+  .hero h1{ font-family:"Newsreader",serif; font-weight:400; font-size:clamp(40px,8.5vw,68px); line-height:1.03; letter-spacing:-.015em; margin-bottom:10px; }
+  .hero .creds{ font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+  .hero .role{ font-family:"Newsreader",serif; font-style:italic; font-size:clamp(19px,4.5vw,23px); margin-bottom:4px; }
+  .hero .affil{ color:var(--muted); font-size:16px; margin-bottom:26px; }
+  .hero .tagline{ font-size:clamp(17px,4vw,20px); max-width:36ch; margin-bottom:30px; }
+  .contacts{ display:flex; flex-wrap:wrap; gap:10px; }
+  .contacts a{ font-size:13px; padding:7px 13px; border:1px solid var(--rule-2); border-radius:999px; color:var(--ink); transition:border-color .2s, background .2s; }
+  .contacts a:hover{ text-decoration:none; border-color:var(--accent); background:rgba(40,84,80,.06); color:var(--accent); }
+
+  .about p{ margin-bottom:14px; max-width:var(--readw); }
+  .about p:last-child{ margin-bottom:0; }
+  .themes{ display:grid; gap:24px; }
+  .theme h3{ font-family:"Newsreader",serif; font-weight:500; font-size:21px; margin-bottom:4px; }
+  .theme p{ color:var(--muted); font-size:16px; }
+
+  /* expanding research panels (hover to open) */
+  .rpanels{ display:flex; gap:8px; height:400px; }
+  .rpanel{ position:relative; flex:1; min-width:0; height:100%; border-radius:14px; overflow:hidden; cursor:pointer; transition:flex .6s cubic-bezier(.2,.8,.2,1); }
+  .rpanel.active{ flex:5.2; }
+  .rbg{ position:absolute; inset:0; background-size:cover; background-position:center; transition:transform .7s ease; }
+  .rpanel.active .rbg{ transform:scale(1.07); }
+  .rscrim{ position:absolute; inset:0; background:rgba(15,12,16,.34); transition:background .4s ease; }
+  .rpanel.active .rscrim{ background:rgba(15,12,16,.16); }
+  .rvert{ position:absolute; left:50%; bottom:20px; transform:translateX(-50%) rotate(180deg); writing-mode:vertical-rl; color:#fff; font-family:"Newsreader",serif; font-size:18px; white-space:nowrap; opacity:.94; transition:opacity .3s ease; }
+  .rpanel.active .rvert{ opacity:0; }
+  .rnum{ position:absolute; top:14px; left:0; right:0; text-align:center; color:rgba(255,255,255,.7); font-size:12px; letter-spacing:.14em; transition:opacity .3s ease; }
+  .rpanel.active .rnum{ opacity:0; }
+  .rcontent{ position:absolute; left:0; right:0; bottom:0; padding:24px 26px; color:#fff; opacity:0; transform:translateY(12px); transition:opacity .5s ease .12s, transform .5s ease .12s; }
+  .rpanel.active .rcontent{ opacity:1; transform:none; }
+  .rtitle{ font-family:"Newsreader",serif; font-weight:500; font-size:26px; margin:0 0 6px; color:#fff; }
+  .rtext{ font-size:14px; opacity:.9; margin:0; color:#fff; }
+  .rhint{ text-align:center; color:var(--muted); font-size:13px; margin:14px 0 0; }
+  @media (max-width:520px){ .rpanels{ height:340px; } .rpanel.active{ flex:4; } .rtitle{ font-size:22px; } }
+
+  /* collapsible entries with photo strips */
+  .entry{ border-bottom:1px solid var(--rule); }
+  .entry-head{ width:100%; background:none; border:none; font:inherit; color:inherit; cursor:default; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:18px 0; text-align:left; }
+  button.entry-head{ cursor:pointer; }
+  button.entry-head:hover .entry-title{ color:var(--accent); }
+  .entry-title{ font-family:"Newsreader",serif; font-weight:500; font-size:20px; transition:color .15s; }
+  .entry-right{ display:flex; align-items:center; gap:12px; color:var(--accent); font-size:13px; white-space:nowrap; }
+  .chev{ display:inline-block; transition:transform .25s ease; font-size:11px; }
+  .entry.open .chev{ transform:rotate(90deg); }
+  .entry-panel{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s ease; }
+  .entry.open .entry-panel{ grid-template-rows:1fr; }
+  .entry-panel-inner{ overflow:hidden; min-height:0; }
+  .entry-detail{ color:var(--muted); font-size:16px; padding-bottom:6px; max-width:var(--readw); }
+  .strip{ display:flex; gap:10px; overflow-x:auto; padding:8px 2px 16px; scroll-snap-type:x mandatory; }
+  .strip img{ height:190px; width:auto; max-width:80vw; border-radius:10px; border:1px solid var(--rule); object-fit:cover; flex:0 0 auto; scroll-snap-align:start; cursor:zoom-in; background:#eceae3; }
+  .entry-link{ display:inline-block; margin-bottom:16px; font-size:13px; }
+
+  /* awards — black prize block, click to expand, moving photo backdrop */
+  .awblk{ --acc:#e3c16f; --ivory:#f4efe4; --muted:rgba(244,239,228,.34); background:#0c0a0e; border-radius:16px; padding:18px; }
+  .awrow{ display:flex; gap:10px; align-items:stretch; min-height:280px; transition:gap .4s ease; }
+  .awrow.expanded{ height:600px; gap:0; }
+  .awtab{ position:relative; flex:1; min-width:0; display:flex; border-radius:13px; overflow:hidden; cursor:pointer; background:#0c0a0e; border:1px solid rgba(255,255,255,.07); transition:flex .55s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+  .awtab.open{ flex:1000; cursor:default; }
+  .awrow.expanded .awtab:not(.open){ flex:0; opacity:0; pointer-events:none; border:none; }
+  .awbg{ position:absolute; inset:0; z-index:0; background-size:cover; background-position:center; }
+  .awfx{ position:absolute; inset:0; z-index:1; background-size:cover; background-position:center; pointer-events:none; }
+  .awscrim{ position:absolute; inset:0; z-index:2; background:var(--aw-scrim, rgba(10,8,12,.32)); }
+  .awcol{ position:relative; z-index:3; flex:1; display:flex; align-items:center; justify-content:center; padding:52px 12px 28px; transition:opacity .25s ease; }
+  /* heading backing is rendered as .awshade (editable in the builder) */
+  .awyear-top{ position:absolute; top:14px; left:0; right:0; text-align:center; color:var(--acc); font-family:"Newsreader",serif; font-size:13px; padding:0 8px; line-height:1.3; text-shadow:0 1px 6px rgba(0,0,0,.7); }
+  .awvert{ writing-mode:vertical-rl; transform:rotate(180deg); color:var(--ivory); font-family:"Newsreader",serif; font-size:16px; white-space:nowrap; text-shadow:0 2px 10px rgba(0,0,0,.5); }
+  .awtab.open .awcol{ opacity:0; pointer-events:none; }
+  .awdetail{ position:absolute; inset:0; z-index:4; opacity:0; pointer-events:none; background:radial-gradient(120% 90% at 16% 8%, rgba(255,255,255,.06), transparent 60%); transition:opacity .3s ease; }
+  .awtab.open .awdetail{ opacity:1; pointer-events:auto; }
+  .pstrip{ position:absolute; inset:0; overflow:hidden; z-index:0; }
+  .ptrack{ display:flex; gap:8px; height:100%; width:max-content; }
+  .pphoto{ flex:0 0 auto; width:clamp(260px,58vw,560px); height:100%; background-size:cover; background-position:center; }
+  .pstill{ position:absolute; inset:0; z-index:0; background-size:cover; background-position:center; }
+  .awfade{ position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(180deg,#0c0a0e 0%,#0c0a0e 18%,rgba(12,10,14,.55) 32%,rgba(12,10,14,.12) 48%,rgba(12,10,14,0) 62%,rgba(12,10,14,0) 100%); }
+  .awtext{ position:absolute; left:0; right:0; top:0; z-index:3; padding:30px 34px; }
+  .awd-year{ color:var(--acc); font-family:"Newsreader",serif; font-size:15px; letter-spacing:.06em; margin:0 0 6px; }
+  .awd-place{ color:rgba(244,239,228,.82); font-size:14px; margin:14px 0 0; }
+  .awd-brief{ color:#d8d3c8; font-size:15px; line-height:1.55; margin:10px 0 0; max-width:64ch; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
+  .parrow{ position:absolute; top:62%; transform:translateY(-50%); z-index:4; width:44px; height:44px; border-radius:50%; border:1.5px solid rgba(255,255,255,.55); background:rgba(8,6,10,.4); color:#fff; font-size:24px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s, border-color .2s; }
+  .parrow:hover{ background:rgba(8,6,10,.75); border-color:var(--acc); }
+  .pprev{ left:16px; } .pnext{ right:16px; }
+  .awclose{ position:absolute; top:18px; right:20px; z-index:5; width:46px; height:46px; border-radius:50%; border:1.5px solid rgba(255,255,255,.55); background:rgba(8,6,10,.35); color:var(--ivory); font-size:24px; font-weight:300; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .35s cubic-bezier(.2,.8,.2,1), border-color .25s, color .25s, background .25s; }
+  .awclose:hover{ transform:rotate(90deg); border-color:var(--acc); color:var(--acc); background:rgba(8,6,10,.65); }
+  .htitle{ font-family:"Newsreader",serif; font-size:31px; font-weight:500; line-height:1.1; display:inline-block; }
+  .h-morph{ color:var(--acc); transform-origin:left center; opacity:0; transform:rotate(-87deg) translateY(34px) scale(.92); }
+  .h-morph.play{ transition:transform .65s cubic-bezier(.2,.8,.2,1), opacity .5s ease; transform:none; opacity:1; }
+  .h-letter{ color:var(--acc); }
+  .h-letter .ch{ display:inline-block; opacity:0; transform:translateY(16px); }
+  .h-letter.play .ch{ animation:awChIn .5s cubic-bezier(.2,.8,.2,1) forwards; animation-delay:calc(var(--i)*36ms); }
+  @keyframes awChIn{ to{ opacity:1; transform:none; } }
+  .h-word{ color:var(--ivory); }
+  .h-word .wd{ display:inline-block; margin-right:.28em; opacity:0; }
+  .h-word .wd.l{ transform:translateX(-46px); } .h-word .wd.r{ transform:translateX(46px); }
+  .h-word.play .wd{ animation:awWdIn .55s cubic-bezier(.2,.8,.2,1) forwards; animation-delay:calc(var(--i)*95ms); }
+  @keyframes awWdIn{ to{ opacity:1; transform:none; } }
+  .h-sweep{ position:relative; color:var(--muted); }
+  .h-sweep .fill{ position:absolute; left:0; top:0; white-space:nowrap; color:var(--acc); clip-path:inset(0 100% 0 0); }
+  .h-sweep.play .fill{ transition:clip-path .85s cubic-bezier(.5,0,.1,1); clip-path:inset(0 0 0 0); }
+  .h-sweep .ul{ position:absolute; left:0; bottom:-7px; height:2px; width:100%; background:var(--acc); transform:scaleX(0); transform-origin:left; }
+  .h-sweep.play .ul{ transition:transform .7s ease .12s; transform:scaleX(1); }
+  .h-out{ color:transparent; -webkit-text-stroke:1.4px var(--acc); transition:color .85s ease .18s; }
+  .h-out.play{ color:var(--acc); }
+  @media (max-width:560px){ .awrow.expanded{ height:500px; } .htitle{ font-size:25px; } .pphoto{ width:78vw; } }
+  @media (prefers-reduced-motion: reduce){ .h-letter .ch, .h-word .wd, .h-morph{ opacity:1; transform:none; } .h-sweep{ color:var(--acc); } .h-sweep .fill{ clip-path:inset(0 0 0 0); } .h-out{ color:var(--acc); } }
+  /* builder accent picker */
+  .acc-edit{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px; }
+  .acc-sw{ width:26px; height:26px; border-radius:50%; border:2px solid var(--rule-2); cursor:pointer; padding:0; }
+  .acc-sw.on{ border-color:var(--ink); }
+  .acc-hex{ width:108px !important; }
+  .e-range{ width:100%; accent-color:var(--accent); margin-top:2px; }
+  .e-val{ color:var(--accent); font-weight:600; }
+  .e-seg{ display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+  .e-tg{ font:inherit; font-size:12px; color:var(--ink); background:#fff; border:1px solid var(--rule-2); border-radius:8px; padding:6px 11px; cursor:pointer; }
+  .e-tg.on{ background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600; }
+
+  .lightbox{ position:fixed; inset:0; z-index:100; background:rgba(20,16,24,.92); display:flex; align-items:center; justify-content:center; padding:24px; }
+  .lightbox[hidden]{ display:none; }
+  .lb-img{ max-width:92vw; max-height:88vh; border-radius:8px; }
+  .lb-close{ position:absolute; top:14px; right:20px; background:none; border:none; color:#fff; font-size:34px; line-height:1; cursor:pointer; }
+
+  .pub{ display:grid; grid-template-columns:54px 1fr; gap:14px; padding:16px 0; border-bottom:1px solid var(--rule); max-width:820px; }
+  .pub:last-child{ border-bottom:none; }
+  .pub .yr{ font-family:"Newsreader",serif; font-size:18px; color:var(--accent); padding-top:1px; }
+  .pub .ttl{ font-weight:500; }
+  .pub .auth, .pub .ven{ font-size:15px; color:var(--muted); }
+  .pub .ven{ font-style:italic; }
+  .pub strong{ color:var(--ink); font-weight:600; }
+  .pub .pl{ margin-top:5px; display:flex; gap:14px; flex-wrap:wrap; }
+  .pub .pl a{ font-size:13px; }
+
+  .cv-row{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  .cv-note{ color:var(--muted); font-size:16px; flex:1; min-width:200px; }
+  .btn{ font-family:inherit; font-size:14px; font-weight:600; color:#fff; background:var(--accent); border:none; border-radius:8px; padding:11px 18px; cursor:pointer; display:inline-block; }
+  .btn:hover{ background:var(--accent-2); text-decoration:none; color:#fff; }
+
+  .site-footer{ max-width:var(--maxw); margin:0 auto; padding:40px 24px 70px; border-top:1px solid var(--rule); color:var(--muted); font-size:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  .site-footer .fl{ display:flex; gap:16px; flex-wrap:wrap; }
+
+  @media (max-width:520px){ .pub{ grid-template-columns:1fr; gap:4px; } .pub .yr{ font-size:14px; } }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } .reveal{ opacity:1; transform:none; } }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:3px; }
+
+  body.building #site .reveal{ opacity:1; transform:none; }
+  body.building #site .topbar{ position:static; }
+
+  /* builder chrome */
+  .e-bar{ position:sticky; top:0; z-index:50; background:#1b1b18; color:#f6f5f1; display:flex; align-items:center; gap:12px; padding:10px 16px; flex-wrap:wrap; }
+  .e-title{ font-family:"Newsreader",serif; font-size:16px; margin-right:auto; }
+  .e-tabs{ display:flex; gap:3px; background:#2a2a26; border-radius:8px; padding:3px; }
+  .e-tab{ background:transparent; color:#cfcabb; border:none; padding:6px 14px; border-radius:6px; font-family:inherit; font-size:13px; cursor:pointer; }
+  .e-tab.active{ background:#f6f5f1; color:#1b1b18; }
+  .e-btn{ font-family:inherit; font-size:13px; font-weight:600; border-radius:7px; padding:7px 14px; cursor:pointer; border:1px solid #4a4a44; background:transparent; color:#f6f5f1; }
+  .e-primary{ background:#3a716b; border-color:#3a716b; color:#fff; }
+
+  #editor{ max-width:680px; margin:0 auto; padding:24px 24px 90px; }
+  .e-intro{ color:var(--muted); font-size:14px; margin-bottom:18px; }
+  .e-h{ font-family:"Newsreader",serif; font-size:20px; margin:28px 0 6px; padding-bottom:6px; border-bottom:1px solid var(--rule); }
+  .e-sub{ font-size:12.5px; color:var(--muted); margin:2px 0 6px; }
+  label.e-l{ display:block; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); margin:13px 0 5px; font-weight:600; }
+  .e-in, .e-ta{ width:100%; background:#fff; border:1px solid var(--rule-2); border-radius:8px; padding:9px 11px; font-family:inherit; font-size:15px; color:var(--ink); }
+  .e-ta{ min-height:74px; resize:vertical; }
+  .e-in:focus, .e-ta:focus{ outline:none; border-color:var(--accent); }
+  .e-row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .e-card{ border:1px solid var(--rule); border-radius:10px; padding:14px 14px 6px; margin:12px 0; position:relative; background:#fbfaf7; }
+  .e-rm{ position:absolute; top:8px; right:10px; background:none; border:none; color:var(--muted); font-size:19px; line-height:1; cursor:pointer; }
+  .e-rm:hover{ color:#a23a2a; }
+  .e-add{ width:100%; padding:10px; border:1px dashed var(--rule-2); background:transparent; color:var(--accent); border-radius:8px; cursor:pointer; font-family:inherit; font-size:14px; margin:6px 0 4px; }
+  .e-add:hover{ border-color:var(--accent); background:rgba(40,84,80,.05); }
+  .e-hint{ font-size:12.5px; color:var(--muted); margin-top:5px; }
+  .e-link-row{ display:grid; grid-template-columns:120px 1fr; gap:8px; margin-bottom:8px; }
+  #publish-out{ margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); }
+  .e-out-ta{ width:100%; min-height:90px; font-family:ui-monospace,Menlo,monospace; font-size:12px; background:#fff; border:1px solid var(--rule-2); border-radius:8px; padding:10px; color:var(--ink); }
+  .e-reset{ background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; cursor:pointer; margin-top:14px; }
+  @media (max-width:520px){ .e-row2{ grid-template-columns:1fr; } .e-link-row{ grid-template-columns:90px 1fr; } }
+</style>
+</head>
+<body class="building">
+
+<div class="e-bar">
+  <span class="e-title">Site builder</span>
+  <div class="e-tabs">
+    <button id="tab-edit" class="e-tab active" type="button">Edit</button>
+    <button id="tab-prev" class="e-tab" type="button">Preview</button>
+  </div>
+  <button id="publish" class="e-btn e-primary" type="button">Download site</button>
+</div>
+
+<div id="site" hidden></div>
+
+<template id="site-markup">
+  <div class="topbar"><div class="inner">
+    <span class="brand" id="brand"></span>
+    <nav class="nav">
+      <a href="#about">About</a><a href="#research">Research</a><a href="#awards">Awards</a>
+      <a href="#pubs">Publications</a><a href="#conf">Talks</a><a href="#eng">Engagement</a>
+      <a href="#cv">CV</a><a href="#contact">Contact</a>
+    </nav>
+  </div></div>
+
+  <header class="hero">
+    <p class="kicker" id="kicker"></p>
+    <h1 id="name"></h1>
+    <p class="creds" id="creds"></p>
+    <p class="role" id="role"></p>
+    <p class="affil" id="affil"></p>
+    <p class="tagline" id="tagline"></p>
+    <div class="contacts" id="contacts"></div>
+  </header>
+
+  <main class="site-main">
+    <section class="sec about reveal" id="about"><p class="eyebrow">About</p><div id="about-body"></div></section>
+    <section class="sec reveal" id="research"><p class="eyebrow">Research</p><div class="rpanels" id="themes"></div></section>
+    <section class="sec reveal" id="awards"><p class="eyebrow">Awards &amp; honours</p><div class="awblk" id="awards-list"></div></section>
+    <section class="sec reveal" id="pubs"><p class="eyebrow">Publications</p><div id="pub-list"></div></section>
+    <section class="sec reveal" id="conf"><p class="eyebrow">Conferences &amp; talks</p><div id="conf-list"></div></section>
+    <section class="sec reveal" id="eng"><p class="eyebrow">Engagement &amp; leadership</p><div id="eng-list"></div></section>
+    <section class="sec reveal" id="cv"><p class="eyebrow">Curriculum vitae</p>
+      <div class="cv-row"><span class="cv-note" id="cv-note"></span><a class="btn" id="cv-link" href="#">Download CV (PDF)</a></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <span id="foot-name"></span><span class="fl" id="foot-links"></span>
+  </footer>
+</template>
+
+<div id="editor">
+  <p class="e-intro">Pre-filled with Rand's details. Awards, Conferences and Engagement are now <strong>click-to-open cards</strong> with a photo strip. Add photos by listing filenames/URLs (one per line). Edit, <strong>Preview</strong>, then <strong>Download site</strong>.</p>
+
+  <div class="e-h">The basics</div>
+  <label class="e-l">Name (as shown large)</label><input class="e-in" id="f-name">
+  <label class="e-l">Post-nominals / credentials</label><input class="e-in" id="f-creds" placeholder="PhD · MSc · BSc · AFHEA">
+  <div class="e-row2">
+    <div><label class="e-l">Short name (top bar / footer)</label><input class="e-in" id="f-short"></div>
+    <div><label class="e-l">Celebration line (optional)</label><input class="e-in" id="f-conf-line"></div>
+  </div>
+  <label class="e-l">Role / title</label><input class="e-in" id="f-role">
+  <label class="e-l">Affiliation</label><input class="e-in" id="f-affil">
+  <label class="e-l">One-line tagline</label><textarea class="e-ta" id="f-tag"></textarea>
+
+  <div class="e-h">About</div>
+  <label class="e-l">Short bio</label>
+  <textarea class="e-ta" id="f-about" style="min-height:130px"></textarea>
+  <p class="e-hint">Leave a blank line between paragraphs to split them.</p>
+
+  <div class="e-h">Research themes</div>
+  <div id="research-rows"></div>
+  <button class="e-add" id="add-research" type="button">+ Add a research theme</button>
+
+  <div class="e-h">Awards &amp; honours</div>
+  <p class="e-sub">A dark feature block. Click a prize to expand it — the photos drift behind the brief.</p>
+  <label class="e-l">Heading animation</label>
+  <select class="e-in" id="f-aw-style">
+    <option value="morph">Morph — vertical turns to horizontal</option>
+    <option value="cascade">Cascade — letter by letter</option>
+    <option value="slide">Slide-in — words from the sides</option>
+    <option value="sweep">Sweep — colour wash + underline</option>
+    <option value="outline">Outline — fills with colour</option>
+  </select>
+  <label class="e-l">Accent colour (the writing on black)</label>
+  <div class="acc-edit" id="f-aw-accent">
+    <button type="button" class="acc-sw" data-c="#e3c16f" style="background:#e3c16f" title="Gold"></button>
+    <button type="button" class="acc-sw" data-c="#f4efe4" style="background:#f4efe4" title="Ivory"></button>
+    <button type="button" class="acc-sw" data-c="#5fd0bb" style="background:#5fd0bb" title="Mint"></button>
+    <button type="button" class="acc-sw" data-c="#9ec7e8" style="background:#9ec7e8" title="Ice blue"></button>
+    <button type="button" class="acc-sw" data-c="#e8a0ad" style="background:#e8a0ad" title="Rose"></button>
+    <button type="button" class="acc-sw" data-c="#e6a766" style="background:#e6a766" title="Amber"></button>
+    <input class="e-in acc-hex" id="f-aw-accent-hex" placeholder="#hex" maxlength="7">
+  </div>
+  <label class="e-l">Texture over chosen photos <span class="e-val" id="v-aw-fx">60%</span></label>
+  <input type="range" class="e-range" id="f-aw-fx" min="0" max="100" value="60">
+  <label class="e-l">Photo dim <span class="e-val" id="v-aw-dim">32%</span></label>
+  <input type="range" class="e-range" id="f-aw-dim" min="0" max="75" value="32">
+  <label class="e-l">Heading backing</label>
+  <div class="e-seg" id="f-aw-tb">
+    <button type="button" class="e-tg on" data-tb="col">Column</button>
+    <button type="button" class="e-tg" data-tb="veil">Veil</button>
+    <button type="button" class="e-tg" data-tb="none">None</button>
+  </div>
+  <label class="e-l">Backing strength <span class="e-val" id="v-aw-str">60%</span></label>
+  <input type="range" class="e-range" id="f-aw-str" min="0" max="90" value="60">
+  <label class="e-l">Column width <span class="e-val" id="v-aw-cw">150px</span></label>
+  <input type="range" class="e-range" id="f-aw-cw" min="60" max="260" value="150">
+  <div id="awards-rows"></div>
+  <button class="e-add" id="add-award" type="button">+ Add an award</button>
+
+  <div class="e-h">Publications</div>
+  <label class="e-l">Her name as it appears in author lists (auto-bolded)</label>
+  <input class="e-in" id="f-bold">
+  <div id="pub-rows"></div>
+  <button class="e-add" id="add-pub" type="button">+ Add a publication</button>
+
+  <div class="e-h">Conferences &amp; talks</div>
+  <div id="conf-rows"></div>
+  <button class="e-add" id="add-conf" type="button">+ Add a conference / talk</button>
+
+  <div class="e-h">Engagement &amp; leadership</div>
+  <div id="eng-rows"></div>
+  <button class="e-add" id="add-eng" type="button">+ Add an activity</button>
+
+  <div class="e-h">CV</div>
+  <label class="e-l">CV blurb</label><input class="e-in" id="f-cvnote">
+  <label class="e-l">CV file link (optional)</label><input class="e-in" id="f-cvurl" placeholder="cv.pdf">
+
+  <div class="e-h">Links</div>
+  <div class="e-row2">
+    <div><label class="e-l">Email</label><input class="e-in" id="f-email"></div>
+    <div><label class="e-l">ResearchGate</label><input class="e-in" id="f-rg"></div>
+    <div><label class="e-l">LinkedIn</label><input class="e-in" id="f-linkedin"></div>
+    <div><label class="e-l">Google Scholar</label><input class="e-in" id="f-scholar"></div>
+    <div><label class="e-l">ORCID</label><input class="e-in" id="f-orcid"></div>
+    <div><label class="e-l">GitHub</label><input class="e-in" id="f-github"></div>
+  </div>
+
+  <p class="e-hint" style="margin-top:18px"><strong>Adding photos:</strong> put the image files (e.g. <strong>3mt-1.jpg</strong>, <strong>3mt-2.jpg</strong>) in the same folder as the site, then list their filenames in the entry's Photos box — one per line. Or paste full image URLs.</p>
+
+  <button class="e-reset" id="reset" type="button">Reset to Rand's details</button>
+
+  <div id="publish-out" hidden>
+    <div class="e-h">Your site is ready</div>
+    <p class="e-hint" style="margin-bottom:10px">The download should have started as <strong>index.html</strong>. If blocked, copy the code below into a file named <strong>index.html</strong>.</p>
+    <textarea class="e-out-ta" id="out-html" readonly></textarea>
+  </div>
+</div>
+
+<script id="runtime">
+function esc(s){ return (s||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function ensureLightbox(){
+  if(document.getElementById("lightbox")) return;
+  var lb=document.createElement("div"); lb.id="lightbox"; lb.className="lightbox"; lb.setAttribute("hidden","");
+  lb.innerHTML='<button class="lb-close" type="button" aria-label="Close">×</button><img class="lb-img" alt="">';
+  document.body.appendChild(lb);
+  function close(){ lb.setAttribute("hidden",""); }
+  lb.addEventListener("click",function(e){ if(e.target===lb || e.target.classList.contains("lb-close")) close(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") close(); });
+}
+function openLightbox(src,alt){ ensureLightbox(); var lb=document.getElementById("lightbox"); var im=lb.querySelector(".lb-img"); im.src=src; im.alt=alt||""; lb.removeAttribute("hidden"); }
+
+function rphoto(n,a,b){
+  var svg="<svg xmlns='http://www.w3.org/2000/svg' width='700' height='900'>"+
+    "<rect width='700' height='900' fill='"+a+"'/>"+
+    "<polygon points='0,900 700,520 700,900' fill='"+b+"' opacity='0.6'/>"+
+    "<circle cx='540' cy='220' r='220' fill='rgba(255,255,255,0.08)'/>"+
+    "<circle cx='150' cy='760' r='170' fill='rgba(0,0,0,0.12)'/>"+
+    "<g stroke='rgba(255,255,255,0.14)' stroke-width='2'><line x1='0' y1='300' x2='700' y2='180'/><line x1='0' y1='420' x2='700' y2='300'/><line x1='0' y1='540' x2='700' y2='420'/></g>"+
+    "<text x='640' y='260' fill='rgba(255,255,255,0.18)' font-family='Georgia,serif' font-size='170' text-anchor='end'>"+n+"</text></svg>";
+  return "data:image/svg+xml,"+encodeURIComponent(svg);
+}
+function setupResearchPanels(wrap){
+  var panels=wrap.querySelectorAll(".rpanel");
+  if(wrap.__timer){ clearInterval(wrap.__timer); wrap.__timer=null; }
+  if(!panels.length) return;
+  function setActive(i){ wrap.__idx=i; for(var k=0;k<panels.length;k++) panels[k].classList.toggle("active",k===i); }
+  wrap.__hovering=false; setActive(0);
+  for(var k=0;k<panels.length;k++){ (function(i){ panels[i].addEventListener("pointerenter",function(){ wrap.__hovering=true; setActive(i); }); })(k); }
+  if(!wrap.__leaveBound){ wrap.__leaveBound=true; wrap.addEventListener("pointerleave",function(){ wrap.__hovering=false; }); }
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(!reduce && panels.length>1){
+    wrap.__timer=setInterval(function(){ if(wrap.__hovering) return; setActive((wrap.__idx+1)%panels.length); }, 2600);
+  }
+}
+
+function awBg(year,a,b){
+  var s="<svg xmlns='http://www.w3.org/2000/svg' width='900' height='600'>"+
+    "<rect width='900' height='600' fill='"+a+"'/>"+
+    "<polygon points='0,600 900,360 900,600' fill='"+b+"' opacity='0.7'/>"+
+    "<circle cx='720' cy='160' r='230' fill='rgba(255,255,255,0.05)'/>"+
+    "<g transform='translate(110,130)'><circle cx='0' cy='0' r='44' fill='none' stroke='rgba(216,178,90,0.65)' stroke-width='5'/>"+
+    "<path d='M0,-22 L6.5,-6.8 L22.4,-6.8 L9.5,2.6 L14.5,18.3 L0,9 L-14.5,18.3 L-9.5,2.6 L-22.4,-6.8 L-6.5,-6.8 Z' fill='rgba(216,178,90,0.8)'/></g>"+
+    (year?"<text x='850' y='180' fill='rgba(255,255,255,0.1)' font-family='Georgia,serif' font-size='150' text-anchor='end'>"+esc(year)+"</text>":"")+"</svg>";
+  return "data:image/svg+xml,"+encodeURIComponent(s);
+}
+function awFx(tint,i){
+  i = (i==null?0.6:i);
+  var s="<svg xmlns='http://www.w3.org/2000/svg' width='900' height='600'>"+
+    "<polygon points='0,600 900,330 900,600' fill='"+tint+"' opacity='"+(0.55*i).toFixed(3)+"'/>"+
+    "<polygon points='0,0 0,300 560,0' fill='"+tint+"' opacity='"+(0.32*i).toFixed(3)+"'/>"+
+    "<circle cx='720' cy='150' r='250' fill='#ffffff' opacity='"+(0.10*i).toFixed(3)+"'/>"+
+    "<g stroke='#ffffff' stroke-opacity='"+(0.38*i).toFixed(3)+"' stroke-width='3'><line x1='0' y1='190' x2='900' y2='60'/><line x1='0' y1='320' x2='900' y2='190'/><line x1='0' y1='450' x2='900' y2='320'/><line x1='180' y1='600' x2='780' y2='0'/></g></svg>";
+  return "data:image/svg+xml,"+encodeURIComponent(s);
+}
+function awLetters(t){ return t.split("").map(function(ch,k){ var c=(ch===" ")?"&nbsp;":esc(ch); return "<span class='ch' style='--i:"+k+"'>"+c+"</span>"; }).join(""); }
+function awWords(t){ var ws=t.split(" "); return ws.map(function(w,k){ return "<span class='wd "+(k%2?"r":"l")+"' style='--i:"+k+"'>"+esc(w)+"</span>"; }).join(""); }
+function awHeading(style,t){
+  if(style==="cascade") return "<span class='htitle h-letter'>"+awLetters(t)+"</span>";
+  if(style==="slide")   return "<span class='htitle h-word'>"+awWords(t)+"</span>";
+  if(style==="sweep")   return "<span class='htitle h-sweep'>"+esc(t)+"<span class='fill'>"+esc(t)+"</span><span class='ul'></span></span>";
+  if(style==="outline") return "<span class='htitle h-out'>"+esc(t)+"</span>";
+  return "<span class='htitle h-morph'>"+esc(t)+"</span>";
+}
+function setupAwards(wrap,row){
+  var tabs=[].slice.call(row.querySelectorAll(".awtab"));
+  var reduce=window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function startStrip(tab){
+    var vp=tab.querySelector(".pstrip"); if(!vp) return;
+    tab.__paused=false; vp.scrollLeft=0;
+    function loop(){
+      if(!tab.__open || !document.body.contains(tab)) return;
+      if(!tab.__paused && !reduce){ var half=vp.scrollWidth/2; vp.scrollLeft+=0.45; if(half>0&&vp.scrollLeft>=half) vp.scrollLeft-=half; }
+      tab.__raf=requestAnimationFrame(loop);
+    }
+    function step(dir){ tab.__paused=true; var start=vp.scrollLeft,delta=dir*300,t0=performance.now(),half=vp.scrollWidth/2;
+      (function f(now){ var k=Math.min(1,(now-t0)/360); var e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2; vp.scrollLeft=start+delta*e; if(half>0){ if(vp.scrollLeft<0)vp.scrollLeft+=half; else if(vp.scrollLeft>=half)vp.scrollLeft-=half; } if(k<1)requestAnimationFrame(f); else setTimeout(function(){tab.__paused=false;},800); })(performance.now()); }
+    var prev=tab.querySelector(".pprev"), next=tab.querySelector(".pnext");
+    if(prev) prev.onclick=function(e){ e.stopPropagation(); step(-1); };
+    if(next) next.onclick=function(e){ e.stopPropagation(); step(1); };
+    tab.__raf=requestAnimationFrame(loop);
+  }
+  function playHeading(tab){ var ht=tab.querySelector(".htitle"); if(!ht) return; ht.classList.remove("play"); void ht.offsetWidth; setTimeout(function(){ if(tab.__open) ht.classList.add("play"); },180); }
+  function openTab(tab){
+    tabs.forEach(function(t){ if(t!==tab){ t.classList.remove("open"); t.__open=false; if(t.__raf)cancelAnimationFrame(t.__raf); var h=t.querySelector(".htitle"); if(h)h.classList.remove("play"); } });
+    tab.classList.add("open"); row.classList.add("expanded"); tab.__open=true; startStrip(tab); playHeading(tab);
+  }
+  function closeTab(tab){ tab.classList.remove("open"); row.classList.remove("expanded"); tab.__open=false; if(tab.__raf)cancelAnimationFrame(tab.__raf); var h=tab.querySelector(".htitle"); if(h)h.classList.remove("play"); }
+  tabs.forEach(function(tab){
+    tab.addEventListener("click",function(){ if(!tab.classList.contains("open")) openTab(tab); });
+    var close=tab.querySelector(".awclose"); if(close) close.addEventListener("click",function(e){ e.stopPropagation(); closeTab(tab); });
+  });
+}
+function renderAwards(DATA){
+  var wrap=document.getElementById("awards-list"); if(!wrap) return;
+  var awsec=document.getElementById("awards");
+  function el(t,c){ var e=document.createElement(t); if(c)e.className=c; return e; }
+  var items=(DATA.awards||[]);
+  wrap.className="awblk"; wrap.style.setProperty("--acc", DATA.awardsAccent||"#e3c16f"); wrap.innerHTML="";
+  if(!items.length){ if(awsec) awsec.style.display="none"; return; } else if(awsec) awsec.style.display="";
+  var style=DATA.awardsStyle||"morph";
+  var fxI = (DATA.awardsFx!=null?DATA.awardsFx:0.6);
+  var dim = (DATA.awardsDim!=null?DATA.awardsDim:0.32);
+  var backing = DATA.awardsBacking||"col";
+  var bstr = (DATA.awardsBackStr!=null?DATA.awardsBackStr:0.6);
+  var colw = (DATA.awardsColW!=null?DATA.awardsColW:150);
+  wrap.style.setProperty("--aw-scrim","rgba(10,8,12,"+dim+")");
+  var pal=[["#285450","#14302d"],["#3a716b","#1f3b37"],["#6b5a2e","#3a2f18"],["#41506e","#28324b"],["#5a3d52","#2e1f2b"],["#2f615c","#173b38"]];
+  var row=el("div","awrow");
+  items.forEach(function(x,i){
+    var c=pal[i%pal.length];
+    var imgs=(x.images||[]).filter(Boolean);
+    var bgUrl = x.background ? x.background : awBg(x.year||"", c[0], c[1]);
+    var tab=el("div","awtab");
+    var bg=el("div","awbg"); bg.style.backgroundImage="url(\""+bgUrl+"\")";
+    var scrim=el("div","awscrim");
+    var col=el("div","awcol");
+    if(backing!=="none"){
+      var shade=el("div","awshade");
+      if(backing==="veil"){ shade.style.cssText="position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgba(8,6,10,"+bstr+");"; }
+      else { shade.style.cssText="position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);width:"+colw+"px;z-index:-1;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(8,6,10,"+bstr+") 24%,rgba(8,6,10,"+bstr+") 76%,transparent);"; }
+      col.appendChild(shade);
+    }
+    var yt=el("span","awyear-top"); yt.textContent=x.year||"";
+    var vt=el("span","awvert"); vt.textContent=x.title||"";
+    col.appendChild(yt); col.appendChild(vt);
+    var detail=el("div","awdetail");
+    if(imgs.length){
+      var pstrip=el("div","pstrip"); var ptrack=el("div","ptrack");
+      imgs.concat(imgs).forEach(function(u){ var ph=el("div","pphoto"); ph.style.backgroundImage="url(\""+u+"\")"; ptrack.appendChild(ph); });
+      pstrip.appendChild(ptrack); detail.appendChild(pstrip);
+    } else {
+      var still=el("div","pstill"); still.style.backgroundImage="url(\""+bgUrl+"\")"; detail.appendChild(still);
+    }
+    detail.appendChild(el("div","awfade"));
+    if(imgs.length>1){
+      var prev=el("button","parrow pprev"); prev.innerHTML="&#8249;"; prev.setAttribute("aria-label","Previous");
+      var next=el("button","parrow pnext"); next.innerHTML="&#8250;"; next.setAttribute("aria-label","Next");
+      detail.appendChild(prev); detail.appendChild(next);
+    }
+    var close=el("button","awclose"); close.innerHTML="&times;"; close.setAttribute("aria-label","Close"); detail.appendChild(close);
+    var text=el("div","awtext");
+    var yr=el("p","awd-year"); yr.textContent=x.year||""; text.appendChild(yr);
+    var htWrap=el("div"); htWrap.innerHTML=awHeading(style, x.title||""); while(htWrap.firstChild) text.appendChild(htWrap.firstChild);
+    if(x.place){ var pl=el("p","awd-place"); pl.textContent=x.place; text.appendChild(pl); }
+    if(x.detail){ var br=el("p","awd-brief"); br.textContent=x.detail; text.appendChild(br); }
+    detail.appendChild(text);
+    tab.appendChild(bg);
+    if(x.background && fxI>0){ var fxd=el("div","awfx"); fxd.style.backgroundImage="url(\""+awFx(c[0],fxI)+"\")"; tab.appendChild(fxd); }
+    tab.appendChild(scrim); tab.appendChild(col); tab.appendChild(detail);
+    row.appendChild(tab);
+  });
+  wrap.appendChild(row);
+  setupAwards(wrap,row);
+}
+
+function render(DATA){
+  var root=document.getElementById("site"); if(!root) return;
+  var tpl=document.getElementById("site-markup");
+  if(tpl && !root.firstChild){ root.appendChild(tpl.content.cloneNode(true)); }
+  function set(id,v){ var el=document.getElementById(id); if(el){ el.textContent=v||""; el.style.display=v?"":"none"; } }
+  document.title=DATA.name||"Academic homepage";
+  var brand=document.getElementById("brand"); if(brand) brand.textContent=DATA.shortName||DATA.name||"";
+  var kick=document.getElementById("kicker"); if(kick){ kick.textContent=DATA.conferred||""; kick.style.display=DATA.conferred?"":"none"; }
+  set("creds",DATA.creds);
+  var nm=document.getElementById("name"); if(nm) nm.textContent=DATA.name||"";
+  set("role",DATA.role); set("affil",DATA.affiliation); set("tagline",DATA.tagline);
+
+  var L=DATA.links||{};
+  var pills=[ L.email?{label:"Email",href:"mailto:"+L.email}:null,
+    L.researchgate?{label:"ResearchGate",href:L.researchgate}:null,
+    L.linkedin?{label:"LinkedIn",href:L.linkedin}:null,
+    L.scholar?{label:"Google Scholar",href:L.scholar}:null,
+    L.orcid?{label:"ORCID",href:L.orcid}:null,
+    L.github?{label:"GitHub",href:L.github}:null
+  ].filter(Boolean);
+  function fillPills(cid){ var w=document.getElementById(cid); if(!w)return; w.innerHTML=""; pills.forEach(function(p){ var a=document.createElement("a"); a.href=p.href; a.textContent=p.label; if(p.href.indexOf("http")===0){a.target="_blank";a.rel="noopener";} w.appendChild(a); }); }
+  fillPills("contacts"); fillPills("foot-links");
+
+  var ab=document.getElementById("about-body"); if(ab){ ab.innerHTML=""; (DATA.about||[]).forEach(function(t){ var p=document.createElement("p"); p.textContent=t; ab.appendChild(p); }); }
+
+  var th=document.getElementById("themes");
+  if(th){
+    th.className="rpanels"; th.innerHTML="";
+    var ritems=(DATA.research||[]);
+    var pal=[["#2f615c","#1c403d"],["#3f7a73","#27514b"],["#586b46","#39472d"],["#475a7e","#2c3850"],["#836f3f","#544626"],["#6f4d57","#452f36"]];
+    ritems.forEach(function(r,i){
+      var c=pal[i%pal.length];
+      var panel=document.createElement("div"); panel.className="rpanel"; panel.setAttribute("data-i",i);
+      var bg=document.createElement("div"); bg.className="rbg";
+      bg.style.backgroundImage = r.image ? ("url('"+r.image+"')") : ("url(\""+rphoto(i+1,c[0],c[1])+"\")");
+      var scrim=document.createElement("div"); scrim.className="rscrim";
+      var num=document.createElement("div"); num.className="rnum"; num.textContent=(i<9?"0":"")+(i+1);
+      var vert=document.createElement("div"); vert.className="rvert"; vert.textContent=r.title||"";
+      var content=document.createElement("div"); content.className="rcontent";
+      var h=document.createElement("p"); h.className="rtitle"; h.textContent=r.title||"";
+      var p=document.createElement("p"); p.className="rtext"; p.textContent=r.text||"";
+      content.appendChild(h); content.appendChild(p);
+      panel.appendChild(bg); panel.appendChild(scrim); panel.appendChild(num); panel.appendChild(vert); panel.appendChild(content);
+      th.appendChild(panel);
+    });
+    setupResearchPanels(th);
+    var rh=document.getElementById("research-hint"); if(rh) rh.style.display=ritems.length?"":"none";
+  }
+
+  function renderEntries(cid, items, sectionId){
+    var w=document.getElementById(cid); if(!w) return; w.innerHTML="";
+    items=items||[];
+    items.forEach(function(it){
+      var imgs=(it.images||[]).filter(Boolean);
+      var hasContent=(it.detail&&it.detail.length) || imgs.length || (it.link&&it.link.url);
+      var entry=document.createElement("div"); entry.className="entry";
+      var head=document.createElement(hasContent?"button":"div");
+      head.className="entry-head"; if(hasContent){ head.type="button"; head.setAttribute("aria-expanded","false"); }
+      var t=document.createElement("span"); t.className="entry-title"; t.textContent=it.title||"";
+      var right=document.createElement("span"); right.className="entry-right";
+      if(it.year){ var y=document.createElement("span"); y.className="entry-year"; y.textContent=it.year; right.appendChild(y); }
+      if(hasContent){ var ch=document.createElement("span"); ch.className="chev"; ch.textContent="▸"; right.appendChild(ch); }
+      head.appendChild(t); head.appendChild(right); entry.appendChild(head);
+      if(hasContent){
+        var panel=document.createElement("div"); panel.className="entry-panel";
+        var inner=document.createElement("div"); inner.className="entry-panel-inner";
+        if(it.detail){ var p=document.createElement("p"); p.className="entry-detail"; p.textContent=it.detail; inner.appendChild(p); }
+        if(imgs.length){ var strip=document.createElement("div"); strip.className="strip";
+          imgs.forEach(function(src){ var im=document.createElement("img"); im.src=src; im.alt=it.title||""; im.loading="lazy"; im.onerror=function(){ this.style.display="none"; }; im.addEventListener("click",function(){ openLightbox(src,it.title); }); strip.appendChild(im); });
+          inner.appendChild(strip);
+        }
+        if(it.link&&it.link.url){ var a=document.createElement("a"); a.className="entry-link"; a.href=it.link.url; a.textContent=it.link.label||"Link"; if(it.link.url.indexOf("http")===0){a.target="_blank";a.rel="noopener";} inner.appendChild(a); }
+        panel.appendChild(inner); entry.appendChild(panel);
+        head.addEventListener("click",function(){ var open=entry.classList.toggle("open"); head.setAttribute("aria-expanded", open?"true":"false"); });
+      }
+      w.appendChild(entry);
+    });
+    var sec=document.getElementById(sectionId); if(sec) sec.style.display=items.length?"":"none";
+  }
+  renderAwards(DATA);
+  renderEntries("conf-list", DATA.conferences, "conf");
+  renderEntries("eng-list", DATA.engagement, "eng");
+
+  var pl=document.getElementById("pub-list"); if(pl){ pl.innerHTML=""; var bold=DATA.boldName?esc(DATA.boldName):null;
+    (DATA.publications||[]).forEach(function(pub){
+      var row=document.createElement("div"); row.className="pub";
+      var yr=document.createElement("div"); yr.className="yr"; yr.textContent=pub.year;
+      var body=document.createElement("div");
+      var ah=esc(pub.authors); if(bold) ah=ah.split(bold).join("<strong>"+bold+"</strong>");
+      body.innerHTML='<div class="auth">'+ah+'</div><div class="ttl">'+esc(pub.title)+'</div><div class="ven">'+esc(pub.venue)+'</div>';
+      if(pub.links && pub.links.length){ var lw=document.createElement("div"); lw.className="pl";
+        pub.links.forEach(function(lk){ if(!lk||!lk.url)return; var a=document.createElement("a"); a.href=lk.url; a.textContent=lk.label||"Link"; if(lk.url.indexOf("http")===0){a.target="_blank";a.rel="noopener";} lw.appendChild(a); });
+        body.appendChild(lw);
+      }
+      row.appendChild(yr); row.appendChild(body); pl.appendChild(row);
+    });
+    var psec=document.getElementById("pubs"); if(psec) psec.style.display=(DATA.publications&&DATA.publications.length)?"":"none";
+  }
+
+  var cvNote=document.getElementById("cv-note"); if(cvNote) cvNote.textContent=(DATA.cv&&DATA.cv.note)||"";
+  var cv=document.getElementById("cv-link"); if(cv){ if(DATA.cv&&DATA.cv.url&&DATA.cv.url!=="#"){ cv.href=DATA.cv.url; cv.style.display=""; } else { cv.style.display="none"; } }
+  var fn=document.getElementById("foot-name"); if(fn) fn.textContent="© "+new Date().getFullYear()+" "+(DATA.shortName||DATA.name||"");
+
+  if(!window.__revealInit){ window.__revealInit=true;
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} }); },{threshold:0.12});
+    document.querySelectorAll("#site .reveal").forEach(function(el){ io.observe(el); });
+  }
+}
+(function(){
+  function boot(){ if(typeof DATA!=="undefined" && DATA) render(DATA); }
+  if(document.readyState!=="loading") boot(); else document.addEventListener("DOMContentLoaded",boot);
+})();
+</script>
+
+<script id="editorscript">
+(function(){
+  "use strict";
+  if(typeof DATA!=="undefined" && DATA) return;
+
+  var EXAMPLE = {
+    name:"Dr. Rand Abdulhussain",
+    creds:"PhD · MSc · BSc · AFHEA",
+    shortName:"Rand Abdulhussain",
+    role:"Pharmaceutical Scientist",
+    affiliation:"Department of Pharmacy, University of Huddersfield",
+    conferred:"PhD in Pharmaceutics · University of Huddersfield · 2026",
+    tagline:"I research how medicines are formulated, manufactured and released — from electrospun nanofibres to 3D-printed tablets.",
+    about:[
+      "I'm a pharmaceutical scientist completing my PhD in the Department of Pharmacy at the University of Huddersfield. My research looks at how medicines are formulated, manufactured and released in the body, spanning electrospun nanofibres, hot-melt extrusion and 3D-printed dosage forms.",
+      "Alongside my research I'm an Associate Fellow of the Higher Education Academy (AFHEA) and a STEM Ambassador, and my work has been recognised in national and university competitions.",
+      "[Add a personal line here — what drew you to pharmaceutics, or what's next.]"
+    ],
+    research:[
+      { title:"Formulation & drug delivery", text:"Designing dosage forms — from electrospun nanofibres to bioadhesive buccal systems and sustained-release tablets." },
+      { title:"Advanced manufacturing", text:"Hot-melt extrusion, FDM 3D printing, and applying AI and quality-by-design to more sustainable pharmaceutical manufacturing." },
+      { title:"Dissolution science & natural excipients", text:"Using dissolution imaging to understand drug release, and evaluating natural polysaccharides such as baobab and xanthan gum as excipients." }
+    ],
+    awardsStyle:"morph",
+    awardsAccent:"#e3c16f",
+    awardsFx:0.6, awardsDim:0.32, awardsBacking:"col", awardsBackStr:0.6, awardsColW:150,
+    awards:[
+      { title:"Best PhD Student", year:"2026", place:"ENA Awards · National recognition", detail:"Winner — outstanding doctoral research in pharmaceutics. [Add the full award name / organising body so visitors know what ENA stands for.]", background:"", images:[] },
+      { title:"Three Minute Thesis (3MT)", year:"2026", place:"University of Huddersfield", detail:"Won the University 3MT competition for explaining a PhD in three minutes, and progressed to compete nationally.", background:"", images:[] },
+      { title:"Rapid Presentation", year:"2024", place:"University of Manchester", detail:"First place in the rapid presentation competition.", background:"", images:[] },
+      { title:"Best Presentation", year:"", place:"Conference award", detail:"[Add the conference name and year.]", background:"", images:[] }
+    ],
+    boldName:"Abdulhussain, R.",
+    publications:[
+      { year:"2026", authors:"Adebisi, A. O., Abdulhussain, R., Ghazali, Y., & Asare-Addo, K.", title:"Bioadhesive Buccal Delivery Systems.", venue:"Book chapter",
+        links:[{label:"ResearchGate", url:"https://www.researchgate.net/publication/406684176_Bioadhesive_Buccal_Delivery_Systems"}] },
+      { year:"2026", authors:"Abdulhussain, R., Muhamad, H., Fiza, T., et al., & Asare-Addo, K.", title:"The integration of artificial intelligence through quality by digital design for sustainable pharmaceutical manufacturing.", venue:"International Journal of Pharmaceutics",
+        links:[{label:"ResearchGate", url:"https://www.researchgate.net/publication/400792535_The_integration_of_artificial_intelligence_through_quality_by_digital_design_for_sustainable_pharmaceutical_manufacturing"}] },
+      { year:"2025", authors:"Ajiboye, M. A., Rawat, Y., Mawla, N., Abdulhussain, R., et al., & Asare-Addo, K.", title:"An evaluation of the pharmaceutical properties of the Nigerian baobab polysaccharide for sustained release oral tablets.", venue:"RSC Pharmaceutics",
+        links:[{label:"ResearchGate", url:"https://www.researchgate.net/publication/396384730_An_evaluation_of_the_pharmaceutical_properties_of_the_Nigerian_baobab_polysaccharide_for_sustained_release_oral_tablets"}] },
+      { year:"2025", authors:"Muhamad, H., Bashir, A. B., Charlton-Harrison, J., Abdulhussain, R., et al., & Asare-Addo, K.", title:"Hot-melt extruded-FDM 3D-printed polyethylene oxide tablets: Dissolution imaging analysis of swelling and drug release.", venue:"European Journal of Pharmaceutics and Biopharmaceutics",
+        links:[{label:"ResearchGate", url:"https://www.researchgate.net/publication/388283067_Hot-melt_extruded-FDM_3D-printed_polyethylene_oxide_tablets_Dissolution_imaging_analysis_of_swelling_and_drug_release"}] },
+      { year:"2024", authors:"Muhamad, H., Ward, A., Abdulhussain, R., et al., & Asare-Addo, K.", title:"Analysis of Swelling and Dissolution Dynamics of Xanthan Gum-Excipient Blends Using Dissolution Imaging.", venue:"Journal of Drug Delivery Science and Technology",
+        links:[{label:"ResearchGate", url:"https://www.researchgate.net/publication/387063534_Analysis_of_Swelling_and_Dissolution_Dynamics_of_Xanthan_Gum-Excipient_Blends_Using_Dissolution_Imaging"}] },
+      { year:"2024", authors:"Alhatemi, A. Q. M., Al-Yacopy, A. A., Manea, H., & Abdulhussain, R.", title:"Neonatal lupus with complete heart block and long term follow up.", venue:"Oxford Medical Case Reports",
+        links:[{label:"ResearchGate", url:"https://www.researchgate.net/publication/381293780_Neonatal_lupus_with_complete_heart_block_and_long_term_follow_up"}] },
+      { year:"2024", authors:"Alhatemi, A. Q. M., Manea, H., Abdulhussain, R., et al.", title:"Single-dose ibuprofen induced Stevens–Johnson Syndrome.", venue:"Clinical Case Reports",
+        links:[{label:"ResearchGate", url:"https://www.researchgate.net/publication/379824770_Single-dose_ibuprofen_induced_Stevens-Johnson_Syndrome"}] },
+      { year:"2023", authors:"Abdulhussain, R., Adebisi, A. O., Conway, B. R., & Asare-Addo, K.", title:"Electrospun nanofibers: Exploring process parameters, polymer selection, and recent applications in pharmaceuticals and drug delivery.", venue:"Journal of Drug Delivery Science and Technology",
+        links:[{label:"ResearchGate", url:"https://www.researchgate.net/publication/375570992_Electrospun_nanofibers_Exploring_process_parameters_polymer_selection_and_recent_applications_in_pharmaceuticals_and_drug_delivery"}] }
+    ],
+    conferences:[
+      { title:"14th Academy of Pharmaceutical Sciences (APS) Conference", year:"[Year · location]", detail:"[What she presented — poster or talk, and the topic.]", images:[] },
+      { title:"[Add another conference]", year:"", detail:"[Poster or oral presentation details.]", images:[] }
+    ],
+    engagement:[
+      { title:"STEM Ambassador", year:"", detail:"Visits Year 4 pupils in local schools to spark their interest in science, technology, engineering and maths.", images:[] },
+      { title:"Union Chair — University of Huddersfield", year:"", detail:"[Add the years and a line about the role and what she led.]", images:[] }
+    ],
+    cv:{ note:"Eight publications · 300+ citations · award-winning presenter · STEM Ambassador.", url:"" },
+    links:{
+      email:"",
+      researchgate:"https://www.researchgate.net/profile/Rand-Abdulhussain",
+      linkedin:"https://www.linkedin.com/in/rand-abdulhussain-b367a11a1",
+      scholar:"", orcid:"", github:""
+    }
+  };
+
+  var $=function(id){ return document.getElementById(id); };
+  function val(id){ var e=$(id); return e?e.value.trim():""; }
+  function setv(id,v){ var e=$(id); if(e) e.value=v||""; }
+
+  var resWrap=$("research-rows"), pubWrap=$("pub-rows"),
+      awardWrap=$("awards-rows"), confWrap=$("conf-rows"), engWrap=$("eng-rows");
+
+  function researchRow(r){
+    r=r||{title:"",text:"",image:""};
+    var c=document.createElement("div"); c.className="e-card";
+    c.innerHTML='<button class="e-rm" type="button" title="Remove">×</button>'+
+      '<label class="e-l">Theme title</label><input class="e-in r-title">'+
+      '<label class="e-l">Description</label><textarea class="e-ta r-text"></textarea>'+
+      '<label class="e-l">Background photo (optional — filename or URL)</label><input class="e-in r-image" placeholder="nanofibres.jpg">';
+    c.querySelector(".r-title").value=r.title||"";
+    c.querySelector(".r-text").value=r.text||"";
+    c.querySelector(".r-image").value=r.image||"";
+    c.querySelector(".e-rm").addEventListener("click",function(){ c.remove(); update(); });
+    resWrap.appendChild(c);
+  }
+
+  function pubRow(p){
+    p=p||{year:"",authors:"",title:"",venue:"",links:[]};
+    var L=p.links||[];
+    var c=document.createElement("div"); c.className="e-card";
+    c.innerHTML='<button class="e-rm" type="button" title="Remove">×</button>'+
+      '<div class="e-row2"><div><label class="e-l">Year</label><input class="e-in p-year"></div>'+
+      '<div><label class="e-l">Venue / where</label><input class="e-in p-ven"></div></div>'+
+      '<label class="e-l">Authors / people</label><input class="e-in p-auth">'+
+      '<label class="e-l">Title</label><input class="e-in p-title">'+
+      '<label class="e-l">Links (optional — label + url)</label>'+
+      '<div class="e-link-row"><input class="e-in p-l1-label" placeholder="ResearchGate"><input class="e-in p-l1-url" placeholder="https://..."></div>'+
+      '<div class="e-link-row"><input class="e-in p-l2-label" placeholder="DOI / PDF"><input class="e-in p-l2-url" placeholder="https://..."></div>';
+    c.querySelector(".p-year").value=p.year||"";
+    c.querySelector(".p-ven").value=p.venue||"";
+    c.querySelector(".p-auth").value=p.authors||"";
+    c.querySelector(".p-title").value=p.title||"";
+    c.querySelector(".p-l1-label").value=(L[0]&&L[0].label)||"";
+    c.querySelector(".p-l1-url").value=(L[0]&&L[0].url)||"";
+    c.querySelector(".p-l2-label").value=(L[1]&&L[1].label)||"";
+    c.querySelector(".p-l2-url").value=(L[1]&&L[1].url)||"";
+    c.querySelector(".e-rm").addEventListener("click",function(){ c.remove(); update(); });
+    pubWrap.appendChild(c);
+  }
+
+  function entryRow(wrap, it){
+    it=it||{};
+    var imgs=it.images || (it.image?[it.image]:[]);
+    var c=document.createElement("div"); c.className="e-card";
+    c.innerHTML='<button class="e-rm" type="button" title="Remove">×</button>'+
+      '<div class="e-row2"><div><label class="e-l">Title (the heading)</label><input class="e-in ent-title"></div>'+
+      '<div><label class="e-l">Year / where (optional)</label><input class="e-in ent-year"></div></div>'+
+      '<label class="e-l">Detail (optional)</label><textarea class="e-ta ent-detail"></textarea>'+
+      '<label class="e-l">Photos — one filename or URL per line</label><textarea class="e-ta ent-images" placeholder="3mt-1.jpg&#10;3mt-2.jpg"></textarea>'+
+      '<label class="e-l">Link (optional — label + url)</label>'+
+      '<div class="e-link-row"><input class="e-in ent-llabel" placeholder="Link label"><input class="e-in ent-lurl" placeholder="https://..."></div>';
+    c.querySelector(".ent-title").value=it.title||"";
+    c.querySelector(".ent-year").value=it.year||"";
+    c.querySelector(".ent-detail").value=it.detail||"";
+    c.querySelector(".ent-images").value=(imgs||[]).join("\n");
+    c.querySelector(".ent-llabel").value=(it.link&&it.link.label)||"";
+    c.querySelector(".ent-lurl").value=(it.link&&it.link.url)||"";
+    c.querySelector(".e-rm").addEventListener("click",function(){ c.remove(); update(); });
+    wrap.appendChild(c);
+  }
+  function readEntries(wrap){
+    return [].slice.call(wrap.querySelectorAll(".e-card")).map(function(c){
+      var imgs=c.querySelector(".ent-images").value.split(/[\n,]+/).map(function(s){return s.trim();}).filter(Boolean);
+      var lu=c.querySelector(".ent-lurl").value.trim();
+      var o={ title:c.querySelector(".ent-title").value.trim(), year:c.querySelector(".ent-year").value.trim(),
+              detail:c.querySelector(".ent-detail").value.trim(), images:imgs };
+      if(lu) o.link={ label:c.querySelector(".ent-llabel").value.trim()||"Link", url:lu };
+      return o;
+    }).filter(function(o){ return o.title||o.detail||o.images.length; });
+  }
+
+  function awardRow(it){
+    it=it||{};
+    var imgs=it.images||[];
+    var c=document.createElement("div"); c.className="e-card";
+    c.innerHTML='<button class="e-rm" type="button" title="Remove">×</button>'+
+      '<div class="e-row2"><div><label class="e-l">Prize title</label><input class="e-in aw-title"></div>'+
+      '<div><label class="e-l">Year</label><input class="e-in aw-year"></div></div>'+
+      '<label class="e-l">Place / awarding body</label><input class="e-in aw-place" placeholder="University of Huddersfield">'+
+      '<label class="e-l">Brief</label><textarea class="e-ta aw-brief"></textarea>'+
+      '<label class="e-l">Background photo (the tab image — filename or URL)</label><input class="e-in aw-bg" placeholder="best-phd-bg.jpg">'+
+      '<label class="e-l">Strip photos — one filename or URL per line</label><textarea class="e-ta aw-images" placeholder="ceremony.jpg&#10;trophy.jpg"></textarea>';
+    c.querySelector(".aw-title").value=it.title||"";
+    c.querySelector(".aw-year").value=it.year||"";
+    c.querySelector(".aw-place").value=it.place||"";
+    c.querySelector(".aw-brief").value=it.detail||"";
+    c.querySelector(".aw-bg").value=it.background||"";
+    c.querySelector(".aw-images").value=(imgs||[]).join("\n");
+    c.querySelector(".e-rm").addEventListener("click",function(){ c.remove(); update(); });
+    awardWrap.appendChild(c);
+  }
+  function readAwards(){
+    return [].slice.call(awardWrap.querySelectorAll(".e-card")).map(function(c){
+      var imgs=c.querySelector(".aw-images").value.split(/[\n,]+/).map(function(s){return s.trim();}).filter(Boolean);
+      return { title:c.querySelector(".aw-title").value.trim(), year:c.querySelector(".aw-year").value.trim(),
+               place:c.querySelector(".aw-place").value.trim(), detail:c.querySelector(".aw-brief").value.trim(),
+               background:c.querySelector(".aw-bg").value.trim(), images:imgs };
+    }).filter(function(o){ return o.title||o.detail||o.images.length||o.background; });
+  }
+  var accWrap=$("f-aw-accent"), accHex=$("f-aw-accent-hex");
+  function setAwAccent(v){
+    v=v||"#e3c16f"; var matched=false;
+    if(accWrap) [].slice.call(accWrap.querySelectorAll(".acc-sw")).forEach(function(b){ var on=b.getAttribute("data-c").toLowerCase()===v.toLowerCase(); b.classList.toggle("on",on); if(on)matched=true; });
+    if(accHex) accHex.value=matched?"":v;
+  }
+  function awAccentValue(){
+    var hx=accHex?accHex.value.trim():"";
+    if(/^#?[0-9a-fA-F]{6}$/.test(hx)) return hx.charAt(0)==="#"?hx:("#"+hx);
+    var on=accWrap?accWrap.querySelector(".acc-sw.on"):null; return on?on.getAttribute("data-c"):"#e3c16f";
+  }
+  if(accWrap){ accWrap.addEventListener("click",function(e){ var b=e.target.closest(".acc-sw"); if(!b)return; if(accHex)accHex.value=""; [].slice.call(accWrap.querySelectorAll(".acc-sw")).forEach(function(o){o.classList.toggle("on",o===b);}); update(); }); }
+  if(accHex){ accHex.addEventListener("input",function(){ [].slice.call(accWrap.querySelectorAll(".acc-sw")).forEach(function(o){o.classList.remove("on");}); }); }
+  var awStyleSel=$("f-aw-style"); if(awStyleSel) awStyleSel.addEventListener("change",update);
+  function awBacking(){ var on=document.querySelector("#f-aw-tb .e-tg.on"); return on?on.getAttribute("data-tb"):"col"; }
+  var awTb=$("f-aw-tb"); if(awTb){ awTb.addEventListener("click",function(e){ var b=e.target.closest(".e-tg"); if(!b)return; [].slice.call(awTb.querySelectorAll(".e-tg")).forEach(function(o){o.classList.toggle("on",o===b);}); update(); }); }
+  (function(){
+    function readout(id,suf){ var el=$(id), out=$("v"+id.slice(1)); if(el&&out){ el.addEventListener("input",function(){ out.textContent=el.value+suf; }); } }
+    readout("f-aw-fx","%"); readout("f-aw-dim","%"); readout("f-aw-str","%"); readout("f-aw-cw","px");
+  })();
+
+  $("add-research").addEventListener("click",function(){ researchRow(); update(); });
+  $("add-pub").addEventListener("click",function(){ pubRow(); update(); });
+  $("add-award").addEventListener("click",function(){ awardRow(); update(); });
+  $("add-conf").addEventListener("click",function(){ entryRow(confWrap); update(); });
+  $("add-eng").addEventListener("click",function(){ entryRow(engWrap); update(); });
+
+  function populate(d){
+    setv("f-name",d.name); setv("f-creds",d.creds); setv("f-short",d.shortName); setv("f-role",d.role);
+    setv("f-affil",d.affiliation); setv("f-conf-line",d.conferred); setv("f-tag",d.tagline);
+    setv("f-about",(d.about||[]).join("\n\n")); setv("f-bold",d.boldName);
+    setv("f-cvnote",d.cv&&d.cv.note); setv("f-cvurl",d.cv&&d.cv.url&&d.cv.url!=="#"?d.cv.url:"");
+    var L=d.links||{}; setv("f-email",L.email); setv("f-rg",L.researchgate); setv("f-linkedin",L.linkedin); setv("f-scholar",L.scholar); setv("f-orcid",L.orcid); setv("f-github",L.github);
+    resWrap.innerHTML=""; (d.research||[]).forEach(researchRow);
+    awardWrap.innerHTML=""; (d.awards||[]).forEach(function(x){ awardRow(x); });
+    if($("f-aw-style")) $("f-aw-style").value=d.awardsStyle||"morph";
+    (function(){
+      function setR(id,v,suf){ if($(id)){ $(id).value=v; var o=$("v"+id.slice(1)); if(o)o.textContent=v+suf; } }
+      setR("f-aw-fx", Math.round((d.awardsFx!=null?d.awardsFx:0.6)*100), "%");
+      setR("f-aw-dim", Math.round((d.awardsDim!=null?d.awardsDim:0.32)*100), "%");
+      setR("f-aw-str", Math.round((d.awardsBackStr!=null?d.awardsBackStr:0.6)*100), "%");
+      setR("f-aw-cw", (d.awardsColW!=null?d.awardsColW:150), "px");
+      var tb=d.awardsBacking||"col"; if($("f-aw-tb")) [].slice.call($("f-aw-tb").querySelectorAll(".e-tg")).forEach(function(o){ o.classList.toggle("on",o.getAttribute("data-tb")===tb); });
+    })();
+    setAwAccent(d.awardsAccent||"#e3c16f");
+    pubWrap.innerHTML=""; (d.publications||[]).forEach(pubRow);
+    confWrap.innerHTML=""; (d.conferences||[]).forEach(function(x){ entryRow(confWrap,x); });
+    engWrap.innerHTML=""; (d.engagement||[]).forEach(function(x){ entryRow(engWrap,x); });
+  }
+
+  function readForm(){
+    var about=val("f-about").split(/\n\s*\n/).map(function(s){return s.trim();}).filter(Boolean);
+    var research=[].slice.call(resWrap.querySelectorAll(".e-card")).map(function(c){
+      return { title:c.querySelector(".r-title").value.trim(), text:c.querySelector(".r-text").value.trim(), image:c.querySelector(".r-image").value.trim() };
+    }).filter(function(r){ return r.title||r.text||r.image; });
+    var publications=[].slice.call(pubWrap.querySelectorAll(".e-card")).map(function(c){
+      var links=[];
+      var l1u=c.querySelector(".p-l1-url").value.trim(); if(l1u) links.push({label:c.querySelector(".p-l1-label").value.trim()||"Link", url:l1u});
+      var l2u=c.querySelector(".p-l2-url").value.trim(); if(l2u) links.push({label:c.querySelector(".p-l2-label").value.trim()||"Link", url:l2u});
+      return { year:c.querySelector(".p-year").value.trim(), authors:c.querySelector(".p-auth").value.trim(),
+               title:c.querySelector(".p-title").value.trim(), venue:c.querySelector(".p-ven").value.trim(), links:links };
+    }).filter(function(p){ return p.title||p.authors; });
+    return {
+      name:val("f-name")||"Your Name", creds:val("f-creds"), shortName:val("f-short")||val("f-name")||"Your Name",
+      role:val("f-role"), affiliation:val("f-affil"), conferred:val("f-conf-line"), tagline:val("f-tag"),
+      about:about, research:research,
+      awards:readAwards(), awardsStyle:($("f-aw-style")?$("f-aw-style").value:"morph"), awardsAccent:awAccentValue(),
+      awardsFx:($("f-aw-fx")?+$("f-aw-fx").value/100:0.6), awardsDim:($("f-aw-dim")?+$("f-aw-dim").value/100:0.32), awardsBacking:awBacking(), awardsBackStr:($("f-aw-str")?+$("f-aw-str").value/100:0.6), awardsColW:($("f-aw-cw")?+$("f-aw-cw").value:150),
+      boldName:val("f-bold"), publications:publications,
+      conferences:readEntries(confWrap), engagement:readEntries(engWrap),
+      cv:{ note:val("f-cvnote"), url:val("f-cvurl")||"#" },
+      links:{ email:val("f-email"), researchgate:val("f-rg"), linkedin:val("f-linkedin"), scholar:val("f-scholar"), orcid:val("f-orcid"), github:val("f-github") }
+    };
+  }
+
+  function save(d){ try{ localStorage.setItem("rand-site-v3", JSON.stringify(d)); }catch(e){} }
+  function load(){ try{ var s=localStorage.getItem("rand-site-v3"); return s?JSON.parse(s):null; }catch(e){ return null; } }
+
+  function update(){ var d=readForm(); render(d); save(d); }
+  $("editor").addEventListener("input", update);
+
+  function show(which){
+    var edit=which==="edit";
+    $("editor").hidden=!edit; $("site").hidden=edit;
+    $("tab-edit").classList.toggle("active",edit);
+    $("tab-prev").classList.toggle("active",!edit);
+    if(!edit){ update(); window.scrollTo(0,0); }
+  }
+  $("tab-edit").addEventListener("click",function(){ show("edit"); });
+  $("tab-prev").addEventListener("click",function(){ show("prev"); });
+
+  function escAttr(s){ return (s||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+  function buildPublished(d){
+    var css=$("appstyle").textContent;
+    var markup=$("site-markup").innerHTML;
+    var runtime=$("runtime").textContent.replace(/<\/script>/g,"<\\/script>");
+    return '<!DOCTYPE html>\n<html lang="en">\n<head>\n'+
+      '<meta charset="UTF-8"/>\n<meta name="viewport" content="width=device-width, initial-scale=1.0"/>\n'+
+      '<meta name="description" content="'+escAttr(d.name)+(d.role?' — '+escAttr(d.role):'')+'"/>\n'+
+      '<title>'+escAttr(d.name)+'</title>\n'+
+      '<link rel="preconnect" href="https://fonts.googleapis.com">\n'+
+      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'+
+      '<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">\n'+
+      '<style>'+css+'</style>\n</head>\n<body>\n'+
+      '<div id="site"></div>\n'+
+      '<template id="site-markup">'+markup+'</template>\n'+
+      '<script>const DATA='+JSON.stringify(d)+';<\/script>\n'+
+      '<script>'+runtime+'<\/script>\n'+
+      '</body>\n</html>';
+  }
+
+  $("publish").addEventListener("click",function(){
+    show("edit");
+    var d=readForm();
+    var html=buildPublished(d);
+    $("out-html").value=html;
+    $("publish-out").hidden=false;
+    try{
+      var blob=new Blob([html],{type:"text/html"});
+      var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="index.html";
+      document.body.appendChild(a); a.click(); a.remove();
+    }catch(e){}
+    $("publish-out").scrollIntoView({behavior:"smooth"});
+  });
+
+  $("reset").addEventListener("click",function(){
+    try{ localStorage.removeItem("rand-site-v3"); }catch(e){}
+    populate(EXAMPLE); update();
+  });
+
+  populate(load() || EXAMPLE);
+  update();
+})();
+</script>
+</body>
+</html>
